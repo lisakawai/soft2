@@ -13,7 +13,7 @@ class Professor : public LabMember{
 		~Professor(){}
 
 		void SetName(const char* _name){
-			sprintf(name, "Prof.%s", _name);
+			sprintf(name, "%s", _name);
 		}
 
 		void SetRoom(int _room){

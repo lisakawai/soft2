@@ -13,7 +13,15 @@ class LabMember{
 		}
 
 		void SetName(const char* _name){
-			sprintf(name, "Mr.%s", _name);
+			sprintf(name, "%s", _name);
+		}
+
+		bool operator<(const LabMember l) const{
+			return (name[0] < l.name[0]) ? true : false;
+		}
+
+		bool operator>(const LabMember l) const{
+			return (name[0] > l.name[0]) ? true : false;
 		}
 
 		char* GetName(){
