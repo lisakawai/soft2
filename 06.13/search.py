@@ -298,12 +298,12 @@ def graph_search(problem, frontier):
     The argument frontier should be an empty queue.
     Don't worry about repeated paths to a state. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
-    visited_city = []
+    visited_cities = []
     while frontier:
         node = frontier.pop()
-        while node in visited_city:
+        while node in visited_cities:
            node = frontier.pop()
-        visited_city.append(node)
+        visited_cities.append(node)
 
         if problem.goal_test(node.state):
             print node.path()
