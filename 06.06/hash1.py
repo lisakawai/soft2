@@ -2,7 +2,7 @@ import random
 import time
 
 def hsearch(n, data):
-	h = n % 1000
+	h = n % 5000
 	if not hash_table.has_key(h):
 		return False
 	else:
@@ -13,7 +13,7 @@ def hsearch(n, data):
 
 def make_hash(num):
 	for n in num:
-		h = n % 1000
+		h = n % 5000
 		if h not in hash_table:
 			hash_table[h] = []
 		hash_table[h].append(n)
@@ -27,7 +27,7 @@ for line in open('rand.txt', 'r'):
     for item in itemList:
         num.append( int(item) )
     
-f = open('hash2-2.txt', 'w') 
+f = open('hash1-2.txt', 'w') 
 
 for x in xrange(5001):
 	hash_table = {}
