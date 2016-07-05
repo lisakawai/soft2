@@ -3,7 +3,7 @@
 
 # TODO: Possibly use queue.Queue, queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
-
+import bisect, math
 
 class Queue:
 
@@ -64,6 +64,43 @@ class FIFOQueue(Queue):
     def PrintInfo(self):
         print self.A
 
+
+class PriorityQueue(Queue):
+
+    """A queue in which the minimum (or maximum) element (as determined by f and
+    order) is returned first. If order is min, the item with minimum f(x) is
+    returned first; if order is max, then it is the item with maximum f(x).
+    Also supports dict-like lookup."""
+
+    def __init__(self, order=min, f=lambda x: x):
+        self.A = []
+        self.order = order
+        self.f = f
+
+    def append(self, item):
+        bisect.insort(self.A, (self.f(item), item))
+
+    def __len__(self):
+        return len(self.A)
+
+    def pop(self):
+        if self.order == min:
+            return self.A.pop(0)[1]
+        else:
+            return self.A.pop()[1]
+
+    def __contains__(self, item):
+        return any(item == pair[1] for pair in self.A)
+
+    def __getitem__(self, key):
+        for _, item in self.A:
+            if item == key:
+                return item
+
+    def __delitem__(self, key):
+        for i, (value, item) in enumerate(self.A):
+            if item == key:
+                self.A.pop(i)
 
 
 # ______________________________________________________________________________
@@ -275,6 +312,32 @@ class GraphProblem(Problem):
             return infinity
 
 
+def memoize(fn, slot=None):
+    """Memoize fn: make it remember the computed value for any argument list.
+    If slot is specified, store result in that slot of first argument.
+    If slot is false, store results in a dictionary."""
+    if slot:
+        def memoized_fn(obj, *args):
+            if hasattr(obj, slot):
+                return getattr(obj, slot)
+            else:
+                val = fn(obj, *args)
+                setattr(obj, slot, val)
+                return val
+    else:
+        def memoized_fn(*args):
+            if args not in memoized_fn.cache:
+                memoized_fn.cache[args] = fn(*args)
+            return memoized_fn.cache[args]
+
+        memoized_fn.cache = {}
+
+    return memoized_fn
+
+def distance(a, b):
+    """The distance between two (x, y) points."""
+    return math.hypot((a[0] - b[0]), (a[1] - b[1]))
+
 # ______________________________________________________________________________
 # Uninformed Search algorithms
 
@@ -323,6 +386,54 @@ def depth_first_tree_search(problem):
     return graph_search(problem, Stack())
 
 
+# ______________________________________________________________________________
+# Informed (Heuristic) Search
+
+#greedy_best_first_graph_search = best_first_graph_search
+# Greedy best-first search is accomplished by specifying f(n) = h(n).
+
+
+def astar_search(problem, h=None):
+    """A* search is best-first graph search with f(n) = g(n)+h(n).
+    You need to specify the h function when you call astar_search, or
+    else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+
+
+def best_first_graph_search(problem, f):
+    """Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned."""
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    if problem.goal_test(node.state):
+        return node
+    frontier = PriorityQueue(min, f)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            print node.path()
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                incumbent = frontier[child]
+                if f(child) < f(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+    return None
+
+# ______________________________________________________________________________
+
 """ [Figure 3.2]
 Simplified road map of Romania
 """
@@ -353,5 +464,7 @@ print "breadth_first_tree_search"
 ans1 = (breadth_first_tree_search(GraphProblem('Arad', 'Bucharest', romania_map)))
 print "depth_first_tree_search"
 ans2 = (depth_first_tree_search(GraphProblem('Arad', 'Bucharest', romania_map)))
+print "astar_search"
+ans3 = (astar_search(GraphProblem('Arad', 'Bucharest', romania_map)))
 
 
