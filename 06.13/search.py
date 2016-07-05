@@ -347,9 +347,12 @@ def tree_search(problem, frontier):
     The argument frontier should be an empty queue.
     Don't worry about repeated paths to a state. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
+    print "---actuall path---"
     while frontier:
         node = frontier.pop()
+        print node.state
         if problem.goal_test(node.state):
+            print "---path---"
             print node.path()
             return node
         frontier.extend(node.expand(problem))
@@ -362,13 +365,16 @@ def graph_search(problem, frontier):
     Don't worry about repeated paths to a state. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
     visited_cities = []
+    print "---actuall path---"
     while frontier:
         node = frontier.pop()
         while node in visited_cities:
            node = frontier.pop()
+        print node.state
         visited_cities.append(node)
 
         if problem.goal_test(node.state):
+            print "---path---"
             print node.path()
             return node
 
@@ -416,9 +422,12 @@ def best_first_graph_search(problem, f):
     frontier = PriorityQueue(min, f)
     frontier.append(node)
     explored = set()
+    print "---actuall path---"
     while frontier:
         node = frontier.pop()
+        print node.state
         if problem.goal_test(node.state):
+            print "---path---"
             print node.path()
             return node
         explored.add(node.state)
@@ -460,11 +469,11 @@ romania_map.locations = dict(
     Sibiu=(207, 457), Timisoara=(94, 410), Urziceni=(456, 350),
     Vaslui=(509, 444), Zerind=(108, 531))
 
-print "breadth_first_tree_search"
+print "\nbreadth_first_tree_search"
 ans1 = (breadth_first_tree_search(GraphProblem('Arad', 'Bucharest', romania_map)))
-print "depth_first_tree_search"
+print "\ndepth_first_tree_search"
 ans2 = (depth_first_tree_search(GraphProblem('Arad', 'Bucharest', romania_map)))
-print "astar_search"
+print "\nastar_search"
 ans3 = (astar_search(GraphProblem('Arad', 'Bucharest', romania_map)))
 
 
